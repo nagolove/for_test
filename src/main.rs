@@ -15,14 +15,19 @@ fn foo(n: u64) -> u64 {
     0
 }
 
-fn run() {
-    println!("run");
-    foo(40_500_000);
-    println!("end")
-}
-
 fn test_recurse() {
-    let child = thread::Builder::new().stack_size(STACK_SIZE).spawn(run).unwrap();
+    let child = thread::Builder::new()
+        .stack_size(STACK_SIZE)
+        .spawn(|| {
+            unsafe {
+                println!("counter {}", COUNTER);
+            }
+            foo(40_500_000);
+            unsafe {
+                println!("counter {}", COUNTER);
+            }
+        })
+        .unwrap();
     child.join().unwrap();
 }
 
